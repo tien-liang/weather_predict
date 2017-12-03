@@ -88,6 +88,7 @@ def weather_cat(weather):
 
 
 #====================csv file to dataframe====================#
+print("Loading csv file to dataframe")
 #read all weather csv files
 csv_list = []
 for file in glob.glob("yvr-weather/*.csv"):
@@ -106,6 +107,7 @@ weather_csv = weather_csv.dropna()
 
 
 #=======================Get Image data=======================#
+print("Geting image data")
 #assign image filename to available weather data
 weather_csv['Month'] = weather_csv['Month'].apply(adjust)
 weather_csv['Day'] = weather_csv['Day'].apply(adjust)
@@ -120,6 +122,7 @@ weather_csv = weather_csv.dropna()
 
 
 #===================Collect image features===================#
+print("Collecting image features")
 #image features
 weather_csv['darkness'] = weather_csv['image'].apply(average_darkness)
 weather_csv['rgb'] = weather_csv['image'].apply(average_rgb)
@@ -142,6 +145,7 @@ weather_csv = weather_csv.dropna()
 
 
 #==================Test images processing====================#
+print("Loading test images")
 img_test = pd.DataFrame(columns=['Month','image'])
 for file in glob.glob('katkam-test/*.jpg'): 
     img=cv2.imread(file,1)
@@ -251,6 +255,7 @@ Snow,Fog                                          5
 
 
 #=======================Model training=======================#
+print("Model training")
 X = weather_csv[['Month','darkness','R','G','B','white','blue','white_blue_ratio','rgb_difference']].values
 y = weather_csv['weather'].values
 #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.05)
@@ -263,9 +268,13 @@ model = make_pipeline(
 model.fit(X, y)
 #y_predicted = model.predict(X_test)
 #print(accuracy_score(y_test, y_predicted))
+#============================================================#
 
 
 
+#====================Weather Predict=========================#
+print("\n\n\n")
+print("Change focus to image window and press Enter for the next image")
 for x in range(0,len(X_test)):
 	#r = random.randint(0,2700)
 	#data = weather_csv.iloc[r]
@@ -275,9 +284,11 @@ for x in range(0,len(X_test)):
 	#	cv2.putText(img,predicted[0],(8,22),cv2.FONT_HERSHEY_SIMPLEX,0.8,(0,0,255),2)
 	#	print("Actual weather: "+data['weather'])
 	#else:
+	cv2.namedWindow('image')
 	cv2.putText(img,predicted[0],(8,22),cv2.FONT_HERSHEY_SIMPLEX,0.8,(0,255,0),2)
 	cv2.imshow('image',img)
 	cv2.imwrite('image_'+str(x)+'.jpg',img)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
+	print("Press Enter for the next image")
 #============================================================#
